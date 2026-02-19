@@ -5,592 +5,332 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulador de Prompts – Laboratorio Remoto de Microscopía</title>
 <style>
-  /* ─── RESET & BASE ─── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-    min-height: 100vh;
-    padding: 20px;
-    color: #333;
+    min-height: 100vh; padding: 20px; color: #333;
   }
+  .container { max-width: 860px; margin: 0 auto; }
 
-  .container {
-    max-width: 860px;
-    margin: 0 auto;
-  }
-
-  /* ─── HEADER ─── */
+  /* HEADER */
   header {
     background: linear-gradient(135deg, #1a6b5c 0%, #0d4f42 100%);
-    color: white;
-    border-radius: 16px;
-    padding: 30px;
-    text-align: center;
-    margin-bottom: 24px;
+    color: white; border-radius: 16px; padding: 30px;
+    text-align: center; margin-bottom: 24px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
   }
-
   header .icon { font-size: 3rem; margin-bottom: 10px; }
+  header h1 { font-size: 1.55rem; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+  header p  { font-size: 0.95rem; opacity: .88; max-width: 600px; margin: 0 auto; }
 
-  header h1 {
-    font-size: 1.55rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    line-height: 1.3;
-  }
-
-  header p {
-    font-size: 0.95rem;
-    opacity: 0.88;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  /* ─── CARDS ─── */
+  /* CARDS */
   .card {
-    background: white;
-    border-radius: 14px;
-    padding: 28px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    background: white; border-radius: 14px; padding: 28px;
+    margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
-
   .card h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: #1a6b5c;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;
+    color: #1a6b5c; display: flex; align-items: center; gap: 8px;
   }
 
-  /* ─── TEXTAREA ─── */
-  .input-area {
-    position: relative;
-  }
-
+  /* TEXTAREA */
   textarea {
-    width: 100%;
-    min-height: 140px;
-    padding: 16px;
-    border: 2px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 0.97rem;
-    font-family: inherit;
-    line-height: 1.6;
-    resize: vertical;
-    transition: border-color 0.25s;
-    color: #333;
+    width: 100%; min-height: 140px; padding: 16px;
+    border: 2px solid #d1d5db; border-radius: 10px;
+    font-size: 0.97rem; font-family: inherit; line-height: 1.6;
+    resize: vertical; transition: border-color .25s; color: #333;
   }
-
-  textarea:focus {
-    outline: none;
-    border-color: #1a6b5c;
-    box-shadow: 0 0 0 3px rgba(26,107,92,0.15);
-  }
-
-  .char-counter {
-    text-align: right;
-    font-size: 0.82rem;
-    color: #9ca3af;
-    margin-top: 6px;
-  }
-
-  .char-counter.warn { color: #f59e0b; }
+  textarea:focus { outline: none; border-color: #1a6b5c; box-shadow: 0 0 0 3px rgba(26,107,92,.15); }
+  .char-counter { text-align: right; font-size: .82rem; color: #9ca3af; margin-top: 6px; }
+  .char-counter.warn  { color: #f59e0b; }
   .char-counter.limit { color: #ef4444; }
 
-  /* ─── BUTTONS ─── */
-  .btn-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 16px;
-  }
-
+  /* BUTTONS */
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
   button {
-    padding: 11px 22px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    padding: 11px 22px; border: none; border-radius: 8px;
+    font-size: .92rem; font-weight: 600; cursor: pointer;
+    transition: all .2s; display: flex; align-items: center; gap: 6px;
   }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #1a6b5c, #0d4f42);
-    color: white;
-    flex: 1;
-    justify-content: center;
-    min-width: 160px;
-  }
-
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,92,0.4); }
-  .btn-primary:active { transform: translateY(0); }
-
-  .btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1.5px solid #e5e7eb;
-  }
-
+  .btn-primary { background: linear-gradient(135deg, #1a6b5c, #0d4f42); color: white; flex: 1; justify-content: center; min-width: 160px; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,92,.4); }
+  .btn-secondary { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
   .btn-secondary:hover { background: #e5e7eb; }
-
-  .btn-danger {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1.5px solid #fecaca;
-  }
-
+  .btn-danger { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; }
   .btn-danger:hover { background: #fee2e2; }
 
-  /* ─── EXAMPLES PANEL ─── */
-  .examples-panel {
-    display: none;
-    background: #f0fdf4;
-    border: 1.5px solid #bbf7d0;
-    border-radius: 10px;
-    padding: 18px;
-    margin-top: 14px;
-  }
-
+  /* EXAMPLES */
+  .examples-panel { display: none; background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 18px; margin-top: 14px; }
   .examples-panel.show { display: block; }
-
-  .examples-panel h3 {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: #166534;
-    margin-bottom: 12px;
-  }
-
-  .example-item {
-    background: white;
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    border-left: 4px solid #22c55e;
-    font-size: 0.88rem;
-    line-height: 1.55;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
+  .examples-panel h3 { font-size: .92rem; font-weight: 700; color: #166534; margin-bottom: 12px; }
+  .example-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ex-tab { padding: 6px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600; cursor: pointer; border: 1.5px solid #bbf7d0; background: white; color: #166534; transition: all .15s; }
+  .ex-tab.active, .ex-tab:hover { background: #16a34a; color: white; border-color: #16a34a; }
+  .example-item { background: white; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border-left: 4px solid #22c55e; font-size: .88rem; line-height: 1.55; cursor: pointer; transition: background .15s; display: none; }
+  .example-item.active-cat { display: block; }
   .example-item:hover { background: #f0fdf4; }
-  .example-item:last-child { margin-bottom: 0; }
+  .example-label { font-weight: 700; color: #166534; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+  .q-bad  { border-left-color: #ef4444; }
+  .q-ok   { border-left-color: #f59e0b; }
+  .q-good { border-left-color: #22c55e; }
 
-  .example-label {
-    font-weight: 700;
-    color: #166534;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
-  }
-
-  /* ─── RESULTS ─── */
+  /* RESULTS */
   #results { display: none; }
-
-  /* Score badge */
-  .score-badge {
-    text-align: center;
-    margin-bottom: 24px;
+  #typeBadge {
+    background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 18px; font-size: .9rem;
+    color: #166534; font-weight: 600; display: none; align-items: center; gap: 8px;
   }
 
+  /* SCORE */
+  .score-badge { text-align: center; margin-bottom: 24px; }
   .score-circle {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px;
-    border: 6px solid;
-    transition: all 0.5s;
+    width: 110px; height: 110px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 12px; border: 6px solid; transition: all .5s;
   }
+  .score-circle .score-num   { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .score-circle .score-denom { font-size: .82rem; opacity: .7; }
+  .score-level { font-size: 1.15rem; font-weight: 700; }
+  .score-desc  { font-size: .88rem; color: #6b7280; margin-top: 4px; }
 
-  .score-circle .score-num {
-    font-size: 2rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .score-circle .score-denom {
-    font-size: 0.82rem;
-    opacity: 0.7;
-  }
-
-  .score-level {
-    font-size: 1.15rem;
-    font-weight: 700;
-  }
-
-  .score-desc {
-    font-size: 0.88rem;
-    color: #6b7280;
-    margin-top: 4px;
-  }
-
-  /* Level colors */
   .level-deficiente .score-circle { color: #dc2626; border-color: #dc2626; background: #fef2f2; }
-  .level-deficiente .score-level { color: #dc2626; }
+  .level-deficiente .score-level  { color: #dc2626; }
+  .level-basico .score-circle     { color: #f97316; border-color: #f97316; background: #fff7ed; }
+  .level-basico .score-level      { color: #f97316; }
+  .level-moderado .score-circle   { color: #f59e0b; border-color: #f59e0b; background: #fffbeb; }
+  .level-moderado .score-level    { color: #f59e0b; }
+  .level-bueno .score-circle      { color: #3b82f6; border-color: #3b82f6; background: #eff6ff; }
+  .level-bueno .score-level       { color: #3b82f6; }
+  .level-excelente .score-circle  { color: #16a34a; border-color: #16a34a; background: #f0fdf4; }
+  .level-excelente .score-level   { color: #16a34a; }
 
-  .level-basico .score-circle { color: #f97316; border-color: #f97316; background: #fff7ed; }
-  .level-basico .score-level { color: #f97316; }
+  /* CRITERIA BARS */
+  .criteria-grid { display: grid; gap: 14px; margin-bottom: 20px; }
+  .criterion { background: #f9fafb; border-radius: 10px; padding: 14px 16px; }
+  .criterion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .criterion-name   { font-weight: 700; font-size: .9rem; color: #374151; }
+  .criterion-weight { font-size: .78rem; color: #9ca3af; background: #e5e7eb; padding: 2px 7px; border-radius: 20px; }
+  .criterion-score-row { display: flex; align-items: center; gap: 10px; }
+  .bar-track { flex: 1; height: 10px; background: #e5e7eb; border-radius: 10px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 10px; transition: width .6s ease; width: 0; }
+  .criterion-points { font-size: .85rem; font-weight: 700; min-width: 42px; text-align: right; }
+  .stars { font-size: 1.05rem; letter-spacing: 1px; margin-top: 6px; }
 
-  .level-moderado .score-circle { color: #f59e0b; border-color: #f59e0b; background: #fffbeb; }
-  .level-moderado .score-level { color: #f59e0b; }
-
-  .level-bueno .score-circle { color: #3b82f6; border-color: #3b82f6; background: #eff6ff; }
-  .level-bueno .score-level { color: #3b82f6; }
-
-  .level-excelente .score-circle { color: #16a34a; border-color: #16a34a; background: #f0fdf4; }
-  .level-excelente .score-level { color: #16a34a; }
-
-  /* ─── CRITERIA BARS ─── */
-  .criteria-grid {
-    display: grid;
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-
-  .criterion {
-    background: #f9fafb;
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
-
-  .criterion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .criterion-name {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #374151;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .criterion-weight {
-    font-size: 0.78rem;
-    color: #9ca3af;
-    background: #e5e7eb;
-    padding: 2px 7px;
-    border-radius: 20px;
-  }
-
-  .criterion-score-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .bar-track {
-    flex: 1;
-    height: 10px;
-    background: #e5e7eb;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-    border-radius: 10px;
-    transition: width 0.6s ease;
-    width: 0;
-  }
-
-  .criterion-points {
-    font-size: 0.85rem;
-    font-weight: 700;
-    min-width: 42px;
-    text-align: right;
-  }
-
-  .stars {
-    font-size: 1.05rem;
-    letter-spacing: 1px;
-  }
-
-  /* ─── FEEDBACK ─── */
+  /* FEEDBACK */
   .feedback-section { margin-top: 6px; }
-
-  .feedback-section h3 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #374151;
-  }
-
-  .feedback-item {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    font-size: 0.88rem;
-    line-height: 1.5;
-  }
-
+  .feedback-section h3 { font-size: .95rem; font-weight: 700; margin-bottom: 12px; color: #374151; }
+  .feedback-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: .88rem; line-height: 1.5; }
   .feedback-item.positive { background: #f0fdf4; border-left: 3px solid #22c55e; }
   .feedback-item.warning  { background: #fffbeb; border-left: 3px solid #f59e0b; }
   .feedback-item.error    { background: #fef2f2; border-left: 3px solid #ef4444; }
-
   .feedback-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 
-  /* ─── IMPROVED PROMPT ─── */
-  .improved-box {
-    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-    border: 1.5px solid #86efac;
-    border-radius: 10px;
-    padding: 18px;
-    margin-top: 16px;
-  }
+  /* PE TIPS INSIDE RESULTS */
+  .pe-tips { background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 16px; margin-top: 16px; }
+  .pe-tips h3 { font-size: .9rem; font-weight: 700; color: #1d4ed8; margin-bottom: 10px; }
+  .pe-tip-item { font-size: .86rem; color: #374151; line-height: 1.55; margin-bottom: 7px; display: flex; gap: 8px; }
 
-  .improved-box h3 {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: #166534;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .improved-text {
-    background: white;
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 0.9rem;
-    line-height: 1.65;
-    color: #374151;
-    border: 1px solid #d1fae5;
-    font-style: italic;
-  }
-
-  .btn-use-improved {
-    margin-top: 10px;
-    background: #16a34a;
-    color: white;
-    border: none;
-    padding: 9px 18px;
-    border-radius: 7px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
+  /* IMPROVED PROMPT */
+  .improved-box { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 1.5px solid #86efac; border-radius: 10px; padding: 18px; margin-top: 16px; }
+  .improved-box h3 { font-size: .92rem; font-weight: 700; color: #166534; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .improved-text { background: white; border-radius: 8px; padding: 14px; font-size: .9rem; line-height: 1.65; color: #374151; border: 1px solid #d1fae5; font-style: italic; }
+  .btn-use-improved { margin-top: 10px; background: #16a34a; color: white; border: none; padding: 9px 18px; border-radius: 7px; font-size: .85rem; font-weight: 600; cursor: pointer; }
   .btn-use-improved:hover { background: #15803d; }
 
-  /* ─── TIPS ─── */
-  .tips-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-  }
+  /* TIPS CARD */
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .tip-card { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border-radius: 10px; padding: 16px; border: 1px solid #bbf7d0; }
+  .tip-card .tip-icon  { font-size: 1.5rem; margin-bottom: 8px; }
+  .tip-card .tip-title { font-weight: 700; font-size: .88rem; color: #166534; margin-bottom: 5px; }
+  .tip-card .tip-body  { font-size: .82rem; color: #374151; line-height: 1.5; }
 
-  .tip-card {
-    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-    border-radius: 10px;
-    padding: 16px;
-    border: 1px solid #bbf7d0;
-  }
-
-  .tip-card .tip-icon { font-size: 1.5rem; margin-bottom: 8px; }
-  .tip-card .tip-title { font-weight: 700; font-size: 0.88rem; color: #166534; margin-bottom: 5px; }
-  .tip-card .tip-body  { font-size: 0.82rem; color: #374151; line-height: 1.5; }
-
-  /* ─── HISTORY ─── */
+  /* HISTORY */
   .history-list { max-height: 260px; overflow-y: auto; }
-
-  .history-item {
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: background 0.15s;
-    border: 1px solid #e5e7eb;
-  }
-
+  .history-item { background: #f9fafb; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: background .15s; border: 1px solid #e5e7eb; }
   .history-item:hover { background: #f0fdf4; border-color: #bbf7d0; }
+  .history-meta { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .history-score  { font-weight: 700; font-size: .85rem; }
+  .history-time   { font-size: .78rem; color: #9ca3af; }
+  .history-prompt { font-size: .85rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .empty-history  { text-align: center; color: #9ca3af; font-size: .88rem; padding: 20px; }
 
-  .history-meta {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-  }
+  footer { text-align: center; color: rgba(255,255,255,.55); font-size: .8rem; margin-top: 20px; padding-bottom: 10px; }
 
-  .history-score { font-weight: 700; font-size: 0.85rem; }
-  .history-time  { font-size: 0.78rem; color: #9ca3af; }
-  .history-prompt { font-size: 0.85rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn .4s ease; }
 
-  .empty-history { text-align: center; color: #9ca3af; font-size: 0.88rem; padding: 20px; }
-
-  /* ─── FOOTER ─── */
-  footer {
-    text-align: center;
-    color: rgba(255,255,255,0.55);
-    font-size: 0.8rem;
-    margin-top: 20px;
-    padding-bottom: 10px;
-  }
-
-  /* ─── ANIMATIONS ─── */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .fade-in { animation: fadeIn 0.4s ease; }
-
-  /* ─── RESPONSIVE ─── */
   @media (max-width: 600px) {
-    header h1  { font-size: 1.25rem; }
-    .card      { padding: 20px; }
+    header h1 { font-size: 1.25rem; }
+    .card { padding: 20px; }
     .btn-group { flex-direction: column; }
     .btn-primary { min-width: unset; }
   }
 </style>
 </head>
 <body>
-
 <div class="container">
 
   <!-- HEADER -->
   <header>
     <div class="icon">🔬</div>
     <h1>Simulador de Prompts<br>Laboratorio Remoto de Microscopía</h1>
-    <p>Practica cómo escribir buenos prompts al asistente IA antes de usar el laboratorio. Recibe retroalimentación inmediata y mejora tu pregunta.</p>
+    <p>Practica cómo escribir buenos prompts al asistente IA. Recibe retroalimentación basada en Prompt Engineering y mejora tu pregunta antes de usar el laboratorio.</p>
   </header>
 
-  <!-- INPUT CARD -->
+  <!-- INPUT -->
   <div class="card">
     <h2>✏️ Escribe tu prompt</h2>
-
-    <div class="input-area">
-      <textarea id="promptInput"
-        placeholder="Ejemplo: Estoy observando la muestra de cebolla con el objetivo 10x en el laboratorio remoto de microscopía. Preparé el montaje con Lugol pero la imagen se ve borrosa. ¿Cómo ajusto el tornillo micrométrico para enfocar correctamente?">
-      </textarea>
-      <div class="char-counter" id="charCounter">0 / 600 caracteres</div>
-    </div>
+    <textarea id="promptInput"
+      placeholder="Puedes preguntar sobre cualquier tema: conceptos de células, cómo usar el microscopio, pasos de preparación de muestras, lo que observas en pantalla… ¡escribe tu pregunta aquí!"></textarea>
+    <div class="char-counter" id="charCounter">0 / 600 caracteres</div>
 
     <div class="btn-group">
-      <button class="btn-primary" id="btnAnalyze">🔍 Analizar prompt</button>
+      <button class="btn-primary"   id="btnAnalyze">🔍 Analizar prompt</button>
       <button class="btn-secondary" id="btnExample">💡 Ver ejemplos</button>
-      <button class="btn-danger"    id="btnClear">🗑️ Limpiar</button>
+      <button class="btn-danger"    id="btnClear"  >🗑️ Limpiar</button>
     </div>
 
     <!-- EXAMPLES PANEL -->
     <div class="examples-panel" id="examplesPanel">
-      <h3>📌 Haz clic en un ejemplo para cargarlo en el área de texto:</h3>
+      <h3>📌 Elige una categoría y haz clic en un ejemplo para cargarlo:</h3>
 
-      <div class="example-item" data-prompt="ayudame con el microscopio">
-        <div class="example-label">❌ Prompt deficiente</div>
-        ayudame con el microscopio
+      <div class="example-tabs">
+        <div class="ex-tab active" data-cat="conceptos">🧫 Conceptos</div>
+        <div class="ex-tab" data-cat="equipo">🔭 Equipo</div>
+        <div class="ex-tab" data-cat="montaje">🧪 Montaje</div>
+        <div class="ex-tab" data-cat="observacion">👁️ Observación</div>
       </div>
 
-      <div class="example-item" data-prompt="Estoy en la sección de observación del laboratorio remoto de microscopía y seleccioné la muestra de epitelial bucal. No veo bien la muestra con el objetivo 40x. ¿Qué debo revisar en el ajuste de luz y el tornillo micrométrico para mejorar el enfoque?">
-        <div class="example-label">✅ Prompt bueno</div>
-        Estoy en la sección de observación del laboratorio remoto de microscopía y seleccioné la muestra de epitelial bucal. No veo bien la muestra con el objetivo 40x. ¿Qué debo revisar en el ajuste de luz y el tornillo micrométrico para mejorar el enfoque?
+      <!-- CONCEPTOS -->
+      <div class="example-item q-bad  active-cat" data-cat="conceptos" data-prompt="que es la elodea">
+        <div class="example-label">❌ Deficiente – sin contexto ni pregunta clara</div>
+        que es la elodea
+      </div>
+      <div class="example-item q-ok active-cat" data-cat="conceptos" data-prompt="¿Qué es la Elodea y para qué se usa en microscopía?">
+        <div class="example-label">⚠️ Básico – pregunta clara pero sin contexto propio</div>
+        ¿Qué es la Elodea y para qué se usa en microscopía?
+      </div>
+      <div class="example-item q-good active-cat" data-cat="conceptos" data-prompt="Estoy estudiando células vegetales en el laboratorio remoto de microscopía. Sé que la Elodea es una planta acuática, pero no entiendo por qué es tan utilizada para observar cloroplastos en comparación con otras plantas. ¿Qué características la hacen especialmente útil para eso?">
+        <div class="example-label">✅ Excelente – contexto, conocimiento previo y pregunta específica</div>
+        Estoy estudiando células vegetales en el laboratorio remoto de microscopía. Sé que la Elodea es una planta acuática, pero no entiendo por qué es tan utilizada para observar cloroplastos en comparación con otras plantas. ¿Qué características la hacen especialmente útil para eso?
       </div>
 
-      <div class="example-item" data-prompt="En el laboratorio remoto de microscopía estoy preparando la muestra sanguínea (frotis). Ya realicé la extensión sobre el portaobjetos pero no sé si debo añadir colorante antes o después de colocar el cubreobjetos. ¿Cuál es el orden correcto de los pasos y por qué es importante seguirlo?">
-        <div class="example-label">⭐ Prompt excelente</div>
-        En el laboratorio remoto de microscopía estoy preparando la muestra sanguínea (frotis). Ya realicé la extensión sobre el portaobjetos pero no sé si debo añadir colorante antes o después de colocar el cubreobjetos. ¿Cuál es el orden correcto de los pasos y por qué es importante seguirlo?
+      <!-- EQUIPO -->
+      <div class="example-item q-bad" data-cat="equipo" data-prompt="como funciona el microscopio">
+        <div class="example-label">❌ Deficiente – demasiado vago</div>
+        como funciona el microscopio
+      </div>
+      <div class="example-item q-ok" data-cat="equipo" data-prompt="¿Para qué sirve el tornillo micrométrico del microscopio?">
+        <div class="example-label">⚠️ Básico – nombra el componente pero sin contexto personal</div>
+        ¿Para qué sirve el tornillo micrométrico del microscopio?
+      </div>
+      <div class="example-item q-good" data-cat="equipo" data-prompt="Estoy conociendo el equipo del laboratorio remoto de microscopía. Entiendo que el tornillo macrométrico sirve para un ajuste grueso del enfoque, pero no me queda claro cuándo debo cambiar al micrométrico. ¿Puedes explicarme cuál es la diferencia práctica entre ambos y en qué momento del proceso se usa cada uno?">
+        <div class="example-label">✅ Excelente – muestra lo que sabe, señala el punto de duda y pregunta con precisión</div>
+        Estoy conociendo el equipo del laboratorio remoto de microscopía. Entiendo que el tornillo macrométrico sirve para un ajuste grueso del enfoque, pero no me queda claro cuándo debo cambiar al micrométrico. ¿Puedes explicarme cuál es la diferencia práctica entre ambos y en qué momento del proceso se usa cada uno?
+      </div>
+
+      <!-- MONTAJE -->
+      <div class="example-item q-bad" data-cat="montaje" data-prompt="como preparo la muestra">
+        <div class="example-label">❌ Deficiente – sin especificar muestra ni contexto</div>
+        como preparo la muestra
+      </div>
+      <div class="example-item q-ok" data-cat="montaje" data-prompt="¿Cuáles son los pasos para preparar la muestra de cebolla en el laboratorio?">
+        <div class="example-label">⚠️ Básico – menciona la muestra pero no el paso donde tiene dudas</div>
+        ¿Cuáles son los pasos para preparar la muestra de cebolla en el laboratorio?
+      </div>
+      <div class="example-item q-good" data-cat="montaje" data-prompt="Estoy en la sección de preparación del laboratorio remoto de microscopía con la muestra de cebolla. Ya realicé el corte y lo coloqué sobre el portaobjetos, pero no entiendo para qué sirve agregar Lugol. ¿Qué estructuras celulares me ayuda a visualizar y qué ocurriría si no lo utilizara?">
+        <div class="example-label">✅ Excelente – indica la sección, la muestra, el paso realizado y pregunta el porqué</div>
+        Estoy en la sección de preparación del laboratorio remoto de microscopía con la muestra de cebolla. Ya realicé el corte y lo coloqué sobre el portaobjetos, pero no entiendo para qué sirve agregar Lugol. ¿Qué estructuras celulares me ayuda a visualizar y qué ocurriría si no lo utilizara?
+      </div>
+
+      <!-- OBSERVACIÓN -->
+      <div class="example-item q-bad" data-cat="observacion" data-prompt="no veo nada">
+        <div class="example-label">❌ Deficiente – sin ningún dato útil</div>
+        no veo nada
+      </div>
+      <div class="example-item q-ok" data-cat="observacion" data-prompt="¿Por qué debo empezar siempre con el objetivo 4x antes de pasar al 40x?">
+        <div class="example-label">⚠️ Básico – buena pregunta conceptual pero sin contexto situacional</div>
+        ¿Por qué debo empezar siempre con el objetivo 4x antes de pasar al 40x?
+      </div>
+      <div class="example-item q-good" data-cat="observacion" data-prompt="En el laboratorio remoto de microscopía estoy observando la muestra de glóbulos rojos. Con el objetivo 40x logré ver las células, pero al pasar al 100x la imagen quedó muy oscura aunque ya apliqué el aceite de inmersión. ¿Qué debo ajustar en la iluminación o el condensador para mejorar la imagen?">
+        <div class="example-label">✅ Excelente – muestra, objetivo, problema específico y lo que ya intentó</div>
+        En el laboratorio remoto de microscopía estoy observando la muestra de glóbulos rojos. Con el objetivo 40x logré ver las células, pero al pasar al 100x la imagen quedó muy oscura aunque ya apliqué el aceite de inmersión. ¿Qué debo ajustar en la iluminación o el condensador para mejorar la imagen?
       </div>
     </div>
   </div>
 
-  <!-- RESULTS CARD -->
+  <!-- RESULTS -->
   <div class="card fade-in" id="results">
+    <div id="typeBadge"></div>
 
-    <!-- SCORE BADGE -->
     <div class="score-badge" id="scoreBadge">
       <div class="score-circle" id="scoreCircle">
-        <span class="score-num" id="scoreNum">0</span>
+        <span class="score-num"   id="scoreNum">0</span>
         <span class="score-denom">/100</span>
       </div>
       <div class="score-level" id="scoreLevel">–</div>
       <div class="score-desc"  id="scoreDesc">–</div>
     </div>
 
-    <!-- CRITERIA -->
     <div class="criteria-grid" id="criteriaGrid"></div>
 
-    <!-- FEEDBACK -->
     <div class="feedback-section">
       <h3>💬 Retroalimentación</h3>
       <div id="feedbackList"></div>
     </div>
 
-    <!-- IMPROVED PROMPT -->
+    <div class="pe-tips" id="peTips" style="display:none;">
+      <h3>🧠 Consejos de Prompt Engineering para tu tipo de pregunta</h3>
+      <div id="peTipsList"></div>
+    </div>
+
     <div class="improved-box" id="improvedBox" style="display:none;">
       <h3>✨ Sugerencia de prompt mejorado</h3>
       <div class="improved-text" id="improvedText"></div>
       <button class="btn-use-improved" id="btnUseImproved">📋 Usar este prompt</button>
     </div>
-
   </div>
 
-  <!-- TIPS CARD -->
+  <!-- PROMPT ENGINEERING PRINCIPLES -->
   <div class="card">
-    <h2>🧭 Claves para un buen prompt en microscopía</h2>
+    <h2>🧠 Principios de Prompt Engineering</h2>
     <div class="tips-grid">
-
-      <div class="tip-card">
-        <div class="tip-icon">🔬</div>
-        <div class="tip-title">Menciona la muestra</div>
-        <div class="tip-body">Indica qué muestra seleccionaste: cebolla, Elodea, epitelial bucal, sanguínea, etc.</div>
-      </div>
-
-      <div class="tip-card">
-        <div class="tip-icon">🔭</div>
-        <div class="tip-title">Indica el objetivo</div>
-        <div class="tip-body">Especifica el aumento que estás usando: 4x, 10x, 40x o 100x.</div>
-      </div>
-
-      <div class="tip-card">
-        <div class="tip-icon">📍</div>
-        <div class="tip-title">Di en qué sección estás</div>
-        <div class="tip-body">¿Estás en Configuración, Preparación u Observación? Eso ayuda al asistente a entender tu contexto.</div>
-      </div>
-
-      <div class="tip-card">
-        <div class="tip-icon">❓</div>
-        <div class="tip-title">Formula una pregunta clara</div>
-        <div class="tip-body">Usa verbos como: ¿cómo?, ¿por qué?, ¿qué diferencia hay?, ¿qué debo hacer cuando...?</div>
-      </div>
-
-      <div class="tip-card">
-        <div class="tip-icon">🧪</div>
-        <div class="tip-title">Describe tu dificultad</div>
-        <div class="tip-body">Explica qué estás intentando y qué resultado obtienes. Ej: "la imagen se ve borrosa a pesar de ajustar el tornillo".</div>
-      </div>
-
       <div class="tip-card">
         <div class="tip-icon">🎯</div>
-        <div class="tip-title">Sé específico/a</div>
-        <div class="tip-body">Cuantos más detalles des (reactivos, pasos ya realizados, lo que observas), mejor respuesta recibirás.</div>
+        <div class="tip-title">1. Un objetivo por prompt</div>
+        <div class="tip-body">Cada prompt debe contener una sola duda o tarea. Si tienes varias preguntas, sepáralas en prompts individuales para obtener respuestas más claras.</div>
       </div>
-
+      <div class="tip-card">
+        <div class="tip-icon">🌍</div>
+        <div class="tip-title">2. Proporciona contexto</div>
+        <div class="tip-body">El asistente no sabe qué estás haciendo. Menciona dónde estás (laboratorio, sección) y qué relación tiene tu pregunta con la actividad que realizas.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">📚</div>
+        <div class="tip-title">3. Muestra lo que ya sabes</div>
+        <div class="tip-body">Indicar tu punto de partida ("sé que X, pero no entiendo Y") permite una respuesta calibrada para tu nivel y evita explicaciones innecesarias.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">❓</div>
+        <div class="tip-title">4. Pregunta de forma explícita</div>
+        <div class="tip-body">Termina con una pregunta directa: ¿cómo?, ¿por qué?, ¿qué diferencia hay?. Evita que el asistente tenga que adivinar qué necesitas.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🔍</div>
+        <div class="tip-title">5. Sé específico/a</div>
+        <div class="tip-body">Cuanto más preciso es tu prompt, mejor la respuesta. "No entiendo el enfoque" es menos útil que "No logro enfocar la imagen al pasar del tornillo macrométrico al micrométrico".</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">📏</div>
+        <div class="tip-title">6. Longitud adecuada</div>
+        <div class="tip-body">Ni muy corto (falta información) ni muy largo (se pierde lo esencial). Entre 20 y 80 palabras suele ser ideal para preguntas de laboratorio.</div>
+      </div>
     </div>
   </div>
 
-  <!-- HISTORY CARD -->
+  <!-- HISTORY -->
   <div class="card">
     <h2>📋 Historial de intentos</h2>
     <div class="history-list" id="historyList">
@@ -598,223 +338,260 @@
     </div>
   </div>
 
-</div><!-- end .container -->
+</div>
+<footer>Laboratorio Remoto de Microscopía · Simulador de Prompts · LER-UNED Costa Rica</footer>
 
-<footer>
-  Laboratorio Remoto de Microscopía · Simulador de Prompts · LER-UNED Costa Rica
-</footer>
-
-<!-- ═══════════════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════════════════ -->
 <script>
-/* ──────────────────────────────────────────────
-   KEYWORD DICTIONARIES
-────────────────────────────────────────────── */
-const keywords = {
-
-  // Samples
-  muestras: [
-    'cucaracha','estomas','elodea','cloroplastos','cebolla',
-    'epitelial bucal','epitelial','espermatozoide','sanguínea','glóbulos rojos','glóbulos',
-    'célula vegetal','célula animal','muestra','preparación'
-  ],
-
-  // Objectives / optics
-  objetivos: [
-    '4x','10x','40x','100x','objetivo','lente','ocular',
-    'aumento','magnificación','amplificación','aceite de inmersión','aceite'
-  ],
-
-  // Microscope parts
-  partes: [
-    'tornillo macrométrico','tornillo micrométrico','macrométrico','micrométrico',
-    'platina','condensador','revólver','fuente de luz','ajuste de luz',
-    'brazo','cabeza','pinzas','carro','enfoque','diafragma'
-  ],
-
-  // Preparation materials
-  materiales: [
-    'portaobjetos','cubreobjetos','lugol','eosina','colorante','agua',
-    'bisturí','pinzas','frotis','montaje','extensión','fijación','calor',
-    'punción','descarte','extendido'
-  ],
-
-  // Sections of the lab
-  secciones: [
-    'configuración','preparación','observación','introducción','setup',
-    'sección','pantalla','interfaz','menú','botón'
-  ],
-
-  // Observed structures
-  estructuras: [
-    'núcleo','membrana','pared celular','vacuola','cloroplasto','estoma',
-    'glóbulo','eritrocito','célula','tejido','imagen','nitidez','foco',
-    'borroso','desenfocado','nítido','color','viraje'
-  ],
-
-  // Question verbs (objective)
-  verbos: [
-    'cómo','por qué','qué','cuál','cuándo','dónde','explica','explícame',
-    'ayuda','ayúdame','describe','diferencia','comparar','identificar',
-    'determinar','calcular','entender','entiende','interpretar','realizar',
-    'preparar','ajustar','enfocar','observar','seleccionar'
-  ]
+/* ═══════════════════════════════════════════════════
+   TOPIC DETECTION
+   Detect what kind of question this is so feedback
+   can be tailored – not every question needs a sample
+   or objective lens mention.
+═══════════════════════════════════════════════════ */
+const TOPICS = {
+  concepto: {
+    label: '🧫 Pregunta conceptual / teórica',
+    keys: ['qué es','que es','qué son','que son','define','definición','concepto',
+           'para qué sirve','función de','importancia de','diferencia entre',
+           'qué diferencia','comparar','por qué se usa','cómo funciona',
+           'elodea','cebolla','cucaracha','estoma','cloroplasto','epitelial','espermatozoide',
+           'sanguínea','glóbulo','núcleo','membrana','pared celular','vacuola',
+           'célula vegetal','célula animal','microscopía','tejido','organelo',
+           'eucariota','procariota','histología','lugol','eosina','resolución óptica',
+           'poder de resolución'],
+    tips: [
+      { i:'📚', t:'<strong>Muestra tu punto de partida:</strong> Indica qué ya sabes y en qué punto te quedas sin entender. Ej: "Sé que la Elodea es una planta acuática, pero no entiendo por qué…"' },
+      { i:'🎯', t:'<strong>Delimita la pregunta:</strong> Si el concepto es amplio, acota el aspecto específico que quieres entender.' },
+      { i:'🔗', t:'<strong>Conecta con la actividad:</strong> Aunque sea una pregunta teórica, mencionar el laboratorio de microscopía ayuda al asistente a dar ejemplos más relevantes.' },
+    ]
+  },
+  equipo: {
+    label: '🔭 Pregunta sobre el equipo o partes del microscopio',
+    keys: ['tornillo','macrométrico','micrométrico','platina','condensador','revólver',
+           'fuente de luz','ajuste de luz','ocular','objetivo','lente','brazo','cabeza',
+           'pinzas','carro','diafragma','cabezal','portaobjetos','cubreobjetos',
+           'partes del microscopio','componente','estructura del microscopio',
+           'modelo 3d','aceite de inmersión'],
+    tips: [
+      { i:'⚙️', t:'<strong>Nombra la parte específica:</strong> Decir exactamente qué componente genera la duda permite una respuesta más precisa.' },
+      { i:'📍', t:'<strong>Describe qué intentas hacer:</strong> Ej: "Estoy intentando ajustar el enfoque y no sé cuándo usar el macrométrico versus el micrométrico".' },
+      { i:'🔗', t:'<strong>Pregunta también el porqué:</strong> Entender la función de cada parte es más útil que solo saber su nombre.' },
+    ]
+  },
+  montaje: {
+    label: '🧪 Pregunta sobre preparación o montaje de muestras',
+    keys: ['preparar','preparación','montaje','montar','corte','bisturí','lugol','eosina',
+           'colorante','agua','fijación','calor','punción','extensión','extendido',
+           'frotis','colocar','paso','pasos','procedimiento','cómo preparo','secuencia',
+           'orden de pasos','cómo hago','portaobjetos','cubreobjetos'],
+    tips: [
+      { i:'📋', t:'<strong>Indica en qué paso estás:</strong> Menciona qué pasos ya realizaste y cuál es el que no entiendes o donde tienes dificultad.' },
+      { i:'🧫', t:'<strong>Nombra la muestra si aplica:</strong> El procedimiento varía según el tipo de muestra (vegetal, bucal, sanguínea), mencionarla mejora la respuesta.' },
+      { i:'❓', t:'<strong>Pregunta también el "por qué":</strong> Entender la razón de cada paso te ayuda a comprender el procedimiento, no solo a memorizarlo.' },
+    ]
+  },
+  observacion: {
+    label: '👁️ Pregunta sobre observación o imagen microscópica',
+    keys: ['observar','observación','imagen','ver','veo','enfoque','enfocar','borroso',
+           'nítido','nitidez','iluminación','objetivo 4','objetivo 10','objetivo 40',
+           'objetivo 100','4x','10x','40x','100x','aceite','contraste','color','viraje',
+           'pantalla completa','descargar','aumento','cambio de objetivo'],
+    tips: [
+      { i:'🔭', t:'<strong>Menciona el aumento si aplica:</strong> Si la dificultad ocurre con un objetivo específico (4x, 10x, 40x, 100x), inclúyelo en el prompt.' },
+      { i:'🧫', t:'<strong>Describe lo que ves:</strong> Ej: "la imagen se ve borrosa" o "no veo células claramente". Eso permite orientarte de forma específica.' },
+      { i:'🔧', t:'<strong>Indica qué ya intentaste:</strong> Si ya ajustaste la luz o el tornillo, menciona lo que hiciste para evitar recibir sugerencias redundantes.' },
+    ]
+  },
+  general: {
+    label: '💬 Pregunta general sobre el laboratorio',
+    keys: [],
+    tips: [
+      { i:'🌍', t:'<strong>Agrega contexto del laboratorio:</strong> Mencionar que estás en el laboratorio remoto de microscopía siempre orienta al asistente.' },
+      { i:'🎯', t:'<strong>Formula una pregunta explícita:</strong> Asegúrate de que quede claro qué quieres que el asistente responda o haga.' },
+      { i:'📚', t:'<strong>Muestra lo que ya sabes:</strong> Indicar tu punto de partida permite una respuesta mejor adaptada a tu nivel.' },
+    ]
+  }
 };
 
-/* ──────────────────────────────────────────────
-   SCORING ENGINE
-────────────────────────────────────────────── */
-function analyzePrompt(text) {
-  const t = text.toLowerCase().trim();
-  const words = t.split(/\s+/);
-  const len   = words.length;
-
-  /* ── 1. CONTEXT (30 pts) ── */
-  let ctxScore = 0;
-  const hasMuestra   = keywords.muestras.some(k => t.includes(k));
-  const hasObjetivo  = keywords.objetivos.some(k => t.includes(k));
-  const hasSeccion   = keywords.secciones.some(k => t.includes(k));
-  const hasLabRef    = t.includes('microsco') || t.includes('laboratorio') || t.includes('lab');
-
-  if (hasLabRef)    ctxScore += 8;
-  if (hasMuestra)   ctxScore += 10;
-  if (hasObjetivo)  ctxScore += 7;
-  if (hasSeccion)   ctxScore += 5;
-  ctxScore = Math.min(ctxScore, 30);
-
-  /* ── 2. SPECIFICITY (25 pts) ── */
-  let specScore = 0;
-  const hasParte     = keywords.partes.some(k => t.includes(k));
-  const hasMaterial  = keywords.materiales.some(k => t.includes(k));
-  const hasEstructura= keywords.estructuras.some(k => t.includes(k));
-  const ctxCount     = [hasMuestra, hasObjetivo, hasSeccion, hasParte, hasMaterial, hasEstructura].filter(Boolean).length;
-
-  if (ctxCount >= 4) specScore = 25;
-  else if (ctxCount === 3) specScore = 18;
-  else if (ctxCount === 2) specScore = 12;
-  else if (ctxCount === 1) specScore = 6;
-
-  /* ── 3. CLARITY (20 pts) ── */
-  let clarScore = 0;
-  const sentences = t.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  const avgLen    = sentences.length > 0 ? len / sentences.length : len;
-
-  if (len >= 15 && len <= 120)   clarScore += 10;
-  else if (len >= 8 && len < 15) clarScore += 5;
-
-  if (avgLen >= 5 && avgLen <= 35) clarScore += 5;
-
-  const hasPunct = /[.!?]/.test(t);
-  if (hasPunct) clarScore += 3;
-
-  const tooRepetitive = new Set(words).size / words.length < 0.45;
-  if (!tooRepetitive) clarScore += 2;
-
-  clarScore = Math.min(clarScore, 20);
-
-  /* ── 4. OBJECTIVE / QUESTION (15 pts) ── */
-  let objScore = 0;
-  const hasVerb   = keywords.verbos.some(k => t.includes(k));
-  const hasQ      = t.includes('?') || t.includes('¿');
-  const hasDescrip = len >= 20 && sentences.length >= 2;
-
-  if (hasVerb) objScore += 7;
-  if (hasQ)    objScore += 5;
-  if (hasDescrip) objScore += 3;
-  objScore = Math.min(objScore, 15);
-
-  /* ── 5. COMPLETENESS (10 pts) ── */
-  let compScore = 0;
-  if (len >= 10) compScore += 3;
-  if (len >= 20) compScore += 3;
-  if (len >= 35) compScore += 2;
-  if (sentences.length >= 2) compScore += 2;
-  compScore = Math.min(compScore, 10);
-
-  /* ── TOTAL ── */
-  const total = ctxScore + specScore + clarScore + objScore + compScore;
-
-  /* ── LEVEL ── */
-  let level, levelClass, desc;
-  if      (total >= 85) { level = '⭐ Excelente';      levelClass = 'level-excelente'; desc = '¡Prompt muy completo y bien estructurado!'; }
-  else if (total >= 70) { level = '👍 Bueno';           levelClass = 'level-bueno';     desc = 'Buen prompt, con pequeños ajustes podría ser excelente.'; }
-  else if (total >= 50) { level = '⚠️ Moderado';       levelClass = 'level-moderado';  desc = 'Tiene elementos útiles, pero le falta contexto o especificidad.'; }
-  else if (total >= 30) { level = '🔸 Básico';          levelClass = 'level-basico';    desc = 'Prompt incompleto. El asistente necesitaría más información.'; }
-  else                  { level = '❌ Deficiente';       levelClass = 'level-deficiente';desc = 'Muy vago. Difícil obtener ayuda útil con este prompt.'; }
-
-  /* ── FEEDBACK MESSAGES ── */
-  const feedback = [];
-
-  // Positives
-  if (hasLabRef)     feedback.push({ type:'positive', icon:'✅', text:'Mencionas el laboratorio remoto de microscopía, lo que da contexto al asistente.' });
-  if (hasMuestra)    feedback.push({ type:'positive', icon:'✅', text:'Especificaste la muestra que estás trabajando. ¡Muy bien!' });
-  if (hasObjetivo)   feedback.push({ type:'positive', icon:'✅', text:'Indicaste el objetivo o aumento utilizado. Eso es muy útil.' });
-  if (hasParte)      feedback.push({ type:'positive', icon:'✅', text:'Mencionas partes del microscopio, lo que muestra conocimiento del equipo.' });
-  if (hasMaterial)   feedback.push({ type:'positive', icon:'✅', text:'Haces referencia a materiales o reactivos de la preparación.' });
-  if (hasQ)          feedback.push({ type:'positive', icon:'✅', text:'Hay una pregunta clara. El asistente sabe exactamente qué responder.' });
-  if (hasDescrip)    feedback.push({ type:'positive', icon:'✅', text:'El prompt tiene suficiente extensión para brindar contexto.' });
-
-  // Warnings
-  if (!hasMuestra)   feedback.push({ type:'warning', icon:'⚠️', text:'No mencionas la muestra seleccionada (ej. cebolla, sanguínea, epitelial bucal). Agrégala para que el asistente pueda orientarte mejor.' });
-  if (!hasObjetivo)  feedback.push({ type:'warning', icon:'⚠️', text:'No indicas el objetivo o aumento que estás usando (4x, 10x, 40x, 100x). Esta información es clave.' });
-  if (!hasSeccion)   feedback.push({ type:'warning', icon:'💡', text:'Podrías indicar en qué sección del laboratorio estás: Configuración, Preparación u Observación.' });
-
-  // Errors
-  if (!hasLabRef)    feedback.push({ type:'error', icon:'❌', text:'No hay referencia al laboratorio de microscopía. El asistente no sabe sobre qué contexto hablas.' });
-  if (!hasVerb && !hasQ) feedback.push({ type:'error', icon:'❌', text:'No hay una pregunta ni verbo de acción claro. ¿Qué quieres que el asistente haga?' });
-  if (len < 8)       feedback.push({ type:'error', icon:'❌', text:'El prompt es demasiado corto. Necesitas más información para obtener ayuda útil.' });
-
-  /* ── IMPROVED PROMPT ── */
-  let improved = null;
-  if (total < 80) {
-    const muestraEj  = hasMuestra  ? '' : ' de [muestra, ej. cebolla]';
-    const objetivoEj = hasObjetivo ? '' : ' con el objetivo [4x/10x/40x/100x]';
-    const seccionEj  = hasSeccion  ? '' : ' en la sección de [Configuración/Preparación/Observación]';
-    const problemaEj = len >= 15   ? '' : ' [describe brevemente qué estás intentando y qué dificultad tienes]';
-    improved = `Estoy trabajando en el laboratorio remoto de microscopía${seccionEj}. Seleccioné la muestra${muestraEj} y la estoy observando${objetivoEj}.${problemaEj} ¿Podrías explicarme cómo [especifica tu duda concreta]?`;
+function detectTopic(t) {
+  let best = 'general', bestN = 0;
+  for (const [topic, data] of Object.entries(TOPICS)) {
+    if (topic === 'general') continue;
+    const n = data.keys.filter(k => t.includes(k)).length;
+    if (n > bestN) { bestN = n; best = topic; }
   }
-
-  return {
-    total, ctxScore, specScore, clarScore, objScore, compScore,
-    level, levelClass, desc, feedback, improved,
-    hasMuestra, hasObjetivo, hasSeccion, hasParte
-  };
+  return best;
 }
 
-/* ──────────────────────────────────────────────
-   RENDER
-────────────────────────────────────────────── */
-function renderResults(r) {
-  const resultsEl = document.getElementById('results');
-  resultsEl.style.display = 'block';
-  resultsEl.classList.remove('fade-in');
-  void resultsEl.offsetWidth; // reflow
-  resultsEl.classList.add('fade-in');
+/* ═══════════════════════════════════════════════════
+   SCORING ENGINE — 5 Prompt Engineering criteria
+═══════════════════════════════════════════════════ */
+function analyze(text) {
+  const t  = text.toLowerCase().trim();
+  const wc = t.split(/\s+/).length;
+  const topic = detectTopic(t);
 
-  // Score circle
-  const badge = document.getElementById('scoreBadge');
-  badge.className = `score-badge ${r.levelClass}`;
+  /* 1. CLARITY (25 pts) */
+  let clarity = 0;
+  const hasQ   = /[?¿]/.test(t);
+  const hasVerb = /\b(cómo|como|por qué|porque|qué|que|cuál|cual|cuándo|cuando|explica|explícame|describe|ayuda|ayúdame|diferencia|compara|identifica)\b/.test(t);
+  if (wc >= 10 && wc <= 100) clarity += 10;
+  else if (wc >= 5)           clarity += 5;
+  else if (wc > 100)          clarity += 7;
+  if (hasQ)    clarity += 9;
+  if (hasVerb) clarity += 6;
+  clarity = Math.min(clarity, 25);
+
+  /* 2. CONTEXT (25 pts) */
+  let context = 0;
+  const hasLabRef     = /laboratorio|microsco|lab remoto|lr\b/.test(t);
+  const hasSectionRef = /\b(configuración|preparación|observación|introducción|sección)\b/.test(t);
+  const hasActivityRef= /\b(estoy|estaba|estuve|estamos|durante|en la práctica|en la actividad)\b/.test(t);
+  if (hasLabRef)      context += 10;
+  if (hasSectionRef)  context += 8;
+  if (hasActivityRef) context += 7;
+  // For pure conceptual questions, lab ref is optional – give partial credit
+  if (topic === 'concepto' && !hasLabRef) context += 4;
+  context = Math.min(context, 25);
+
+  /* 3. SPECIFICITY (20 pts)
+     Only evaluate topic-relevant details, not always sample+objective */
+  let spec = 0;
+  const topicKeys = TOPICS[topic].keys;
+  const topicMatches = topicKeys.filter(k => t.includes(k)).length;
+  if (topicMatches >= 3) spec += 12;
+  else if (topicMatches === 2) spec += 8;
+  else if (topicMatches === 1) spec += 4;
+  // Bonus for named specific entities relevant to microscopía
+  const hasSpecific = /\b(4x|10x|40x|100x|lugol|eosina|elodea|cebolla|epitelial|sanguínea|espermatozoide|cloroplasto|estoma|macrométrico|micrométrico|condensador|portaobjetos|cubreobjetos|aceite de inmersión|glóbulo)\b/.test(t);
+  if (hasSpecific) spec += 8;
+  spec = Math.min(spec, 20);
+
+  /* 4. PRIOR KNOWLEDGE SHOWN (15 pts) */
+  let prior = 0;
+  const showsKnown   = /\b(sé que|ya sé|entiendo que|comprendo que|aprendí que|leí que|según|ya realicé|ya hice|ya apliqué|intenté|probé|noté que|observé que)\b/.test(t);
+  const showsStruggle= /\b(pero no|sin embargo no|aunque no|no entiendo|no comprendo|no sé|no logro|no puedo|me confunde|tengo duda|me queda la duda|no me queda claro)\b/.test(t);
+  const hasComparison= /\b(diferencia|comparar|vs\b|versus|a diferencia de|en contraste|mientras que)\b/.test(t);
+  if (showsKnown)    prior += 7;
+  if (showsStruggle) prior += 5;
+  if (hasComparison) prior += 3;
+  prior = Math.min(prior, 15);
+
+  /* 5. COMPLETENESS (15 pts) */
+  let complete = 0;
+  const sentences = t.split(/[.!?¿¡]+/).filter(s => s.trim().length > 2);
+  if (wc >= 5)  complete += 3;
+  if (wc >= 15) complete += 4;
+  if (wc >= 30) complete += 4;
+  if (sentences.length >= 2) complete += 4;
+  complete = Math.min(complete, 15);
+
+  const total = clarity + context + spec + prior + complete;
+
+  /* LEVEL */
+  let level, levelClass, desc;
+  if      (total >= 85) { level = '⭐ Excelente';  levelClass = 'level-excelente'; desc = '¡Prompt muy bien construido! El asistente puede darte una respuesta precisa y útil.'; }
+  else if (total >= 68) { level = '👍 Bueno';       levelClass = 'level-bueno';    desc = 'Buen prompt. Con pequeños ajustes podría ser excelente.'; }
+  else if (total >= 48) { level = '⚠️ Moderado';   levelClass = 'level-moderado'; desc = 'Tiene elementos útiles, pero le falta claridad, contexto o detalle.'; }
+  else if (total >= 28) { level = '🔸 Básico';      levelClass = 'level-basico';   desc = 'El asistente tendría que adivinar mucho. Agrega más información.'; }
+  else                  { level = '❌ Deficiente';  levelClass = 'level-deficiente';desc = 'Muy vago. Difícil obtener ayuda útil con este prompt.'; }
+
+  /* FEEDBACK — contextual, not one-size-fits-all */
+  const fb = [];
+
+  // Clarity
+  if (hasQ)    fb.push({ type:'positive', icon:'✅', text:'Hay una pregunta explícita (signo de interrogación). El asistente sabe qué debe responder.' });
+  else         fb.push({ type:'error',    icon:'❌', text:'No hay una pregunta clara. Asegúrate de formular exactamente qué quieres saber, usando ¿...?.' });
+
+  if (hasVerb) fb.push({ type:'positive', icon:'✅', text:'Usas un verbo de acción claro (cómo, por qué, explica…). Eso orienta bien al asistente.' });
+  else         fb.push({ type:'warning',  icon:'⚠️', text:'Agrega un verbo de acción: ¿cómo?, ¿por qué?, ¿qué diferencia hay?, ¿puedes explicarme?' });
+
+  if (wc < 5)        fb.push({ type:'error',   icon:'❌', text:'El prompt es demasiado corto. Con tan pocas palabras el asistente no tiene suficiente información.' });
+  else if (wc > 120) fb.push({ type:'warning', icon:'⚠️', text:'El prompt es muy extenso. Intenta ser más conciso y enfocarte en una sola duda.' });
+  else if (wc >= 15) fb.push({ type:'positive',icon:'✅', text:'La extensión del prompt es adecuada para obtener una buena respuesta.' });
+
+  // Context
+  if (hasLabRef)      fb.push({ type:'positive', icon:'✅', text:'Mencionas el laboratorio de microscopía, lo que le da contexto al asistente.' });
+  else if (topic !== 'concepto')
+                      fb.push({ type:'warning',  icon:'⚠️', text:'Considera mencionar que estás en el laboratorio remoto de microscopía para orientar mejor al asistente.' });
+
+  if (hasSectionRef)  fb.push({ type:'positive', icon:'✅', text:'Indicaste la sección del laboratorio (configuración, preparación u observación). ¡Excelente!' });
+
+  // Specificity — only suggest sample/objective when the topic makes it relevant
+  if (topic === 'observacion') {
+    const hasSample  = /\b(cebolla|elodea|epitelial|sanguínea|cucaracha|espermatozoide|glóbulo)\b/.test(t);
+    const hasObjLens = /\b(4x|10x|40x|100x|objetivo)\b/.test(t);
+    if (hasSample)   fb.push({ type:'positive', icon:'✅', text:'Mencionas la muestra que estás observando. Eso permite una ayuda más específica.' });
+    else             fb.push({ type:'warning',  icon:'⚠️', text:'Si aplica, indica la muestra que estás observando (ej. cebolla, sanguínea, epitelial bucal).' });
+    if (hasObjLens)  fb.push({ type:'positive', icon:'✅', text:'Indicaste el objetivo o aumento. Eso ayuda a identificar el problema con precisión.' });
+    else             fb.push({ type:'warning',  icon:'⚠️', text:'Indica el aumento que estás usando (4x, 10x, 40x o 100x) ya que el problema puede depender de eso.' });
+  }
+  if (topic === 'montaje') {
+    const hasSample = /\b(cebolla|elodea|epitelial|sanguínea|cucaracha|espermatozoide|glóbulo)\b/.test(t);
+    if (hasSample)  fb.push({ type:'positive', icon:'✅', text:'Mencionas la muestra que estás preparando. Los pasos varían según el tipo, así que eso es importante.' });
+    else            fb.push({ type:'warning',  icon:'⚠️', text:'Si aplica, menciona qué muestra estás preparando. El procedimiento es diferente para cada una.' });
+  }
+
+  // Prior knowledge
+  if (showsKnown)     fb.push({ type:'positive', icon:'✅', text:'Muestras lo que ya sabes, lo que permite al asistente partir de tu nivel sin repetir conceptos conocidos.' });
+  else                fb.push({ type:'warning',  icon:'⚠️', text:'Indicar qué ya comprendes sobre el tema ayuda al asistente a dar una respuesta ajustada a tu nivel.' });
+  if (showsStruggle)  fb.push({ type:'positive', icon:'✅', text:'Describes con claridad en qué punto tienes dificultad. ¡Eso facilita mucho la respuesta!' });
+
+  // Completeness
+  if (sentences.length >= 2) fb.push({ type:'positive', icon:'✅', text:'El prompt tiene varias oraciones, lo que proporciona suficiente contexto al asistente.' });
+
+  /* IMPROVED PROMPT TEMPLATE */
+  let improved = null;
+  if (total < 80) {
+    const topicName = TOPICS[topic].label.replace(/^.+? /, '');
+    const ctxPart   = hasLabRef    ? '' : 'Estoy en el laboratorio remoto de microscopía. ';
+    const knownPart = showsKnown   ? '' : 'Sé que [indica lo que ya comprendes sobre el tema], pero ';
+    const qPart     = hasQ         ? '' : ' ¿[Formula aquí tu pregunta concreta]?';
+    improved = `${ctxPart}${knownPart}[Describe tu situación o duda relacionada con: ${topicName}]${qPart}`;
+  }
+
+  return { total, clarity, context, spec, prior, complete,
+           level, levelClass, desc, fb, improved, topic,
+           hasQ, hasVerb, wc };
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════ */
+function stars(pct) {
+  const f = Math.round(pct / 20);
+  return '⭐'.repeat(f) + '☆'.repeat(5 - f);
+}
+
+function renderResults(r) {
+  const el = document.getElementById('results');
+  el.style.display = 'block';
+  el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
+
+  // Type badge
+  const badge = document.getElementById('typeBadge');
+  badge.style.display = 'flex';
+  badge.innerHTML = '🏷️ Tipo de pregunta detectado: <strong style="margin-left:4px">' + TOPICS[r.topic].label + '</strong>';
+
+  // Score
+  document.getElementById('scoreBadge').className = `score-badge ${r.levelClass}`;
   document.getElementById('scoreNum').textContent   = r.total;
   document.getElementById('scoreLevel').textContent = r.level;
   document.getElementById('scoreDesc').textContent  = r.desc;
 
-  // Criteria
+  // Criteria bars
   const criteria = [
-    { label:'🌍 Contexto',      weight:'30%', score: r.ctxScore,  max:30, color:'#0d9488' },
-    { label:'🎯 Especificidad', weight:'25%', score: r.specScore, max:25, color:'#7c3aed' },
-    { label:'💬 Claridad',      weight:'20%', score: r.clarScore, max:20, color:'#2563eb' },
-    { label:'❓ Objetivo',      weight:'15%', score: r.objScore,  max:15, color:'#d97706' },
-    { label:'📋 Completitud',   weight:'10%', score: r.compScore, max:10, color:'#dc2626' },
+    { label:'💬 Claridad de la pregunta', weight:'25%', score: r.clarity,  max:25, color:'#2563eb' },
+    { label:'🌍 Contexto proporcionado',  weight:'25%', score: r.context,  max:25, color:'#0d9488' },
+    { label:'🎯 Especificidad',           weight:'20%', score: r.spec,     max:20, color:'#7c3aed' },
+    { label:'📚 Conocimiento previo',     weight:'15%', score: r.prior,    max:15, color:'#d97706' },
+    { label:'📋 Completitud',             weight:'15%', score: r.complete, max:15, color:'#dc2626' },
   ];
-
   const grid = document.getElementById('criteriaGrid');
   grid.innerHTML = '';
-
   criteria.forEach(c => {
-    const pct   = Math.round((c.score / c.max) * 100);
-    const stars = starsFor(pct);
-    const div   = document.createElement('div');
+    const pct = Math.round((c.score / c.max) * 100);
+    const div = document.createElement('div');
     div.className = 'criterion';
     div.innerHTML = `
       <div class="criterion-header">
@@ -822,150 +599,122 @@ function renderResults(r) {
         <span class="criterion-weight">${c.weight}</span>
       </div>
       <div class="criterion-score-row">
-        <div class="bar-track">
-          <div class="bar-fill" style="background:${c.color}; width:0%" data-width="${pct}%"></div>
-        </div>
+        <div class="bar-track"><div class="bar-fill" style="background:${c.color};width:0" data-w="${pct}%"></div></div>
         <span class="criterion-points" style="color:${c.color}">${c.score}/${c.max}</span>
       </div>
-      <div class="stars" style="margin-top:6px">${stars}</div>
+      <div class="stars">${stars(pct)}</div>
     `;
     grid.appendChild(div);
   });
-
-  // Animate bars after paint
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.bar-fill').forEach(b => {
-      b.style.width = b.dataset.width;
-    });
-  });
+  requestAnimationFrame(() => document.querySelectorAll('.bar-fill').forEach(b => b.style.width = b.dataset.w));
 
   // Feedback
   const fbList = document.getElementById('feedbackList');
   fbList.innerHTML = '';
-  r.feedback.forEach(f => {
+  r.fb.forEach(f => {
     const d = document.createElement('div');
     d.className = `feedback-item ${f.type}`;
     d.innerHTML = `<span class="feedback-icon">${f.icon}</span><span>${f.text}</span>`;
     fbList.appendChild(d);
   });
 
+  // PE Tips
+  const peTips = document.getElementById('peTips');
+  const tips = TOPICS[r.topic].tips;
+  if (tips && tips.length) {
+    peTips.style.display = 'block';
+    document.getElementById('peTipsList').innerHTML =
+      tips.map(t => `<div class="pe-tip-item"><span>${t.i}</span><span>${t.t}</span></div>`).join('');
+  } else { peTips.style.display = 'none'; }
+
   // Improved prompt
-  const improvedBox  = document.getElementById('improvedBox');
-  const improvedText = document.getElementById('improvedText');
+  const improvedBox = document.getElementById('improvedBox');
   if (r.improved) {
     improvedBox.style.display = 'block';
-    improvedText.textContent  = r.improved;
-  } else {
-    improvedBox.style.display = 'none';
-  }
+    document.getElementById('improvedText').textContent = r.improved;
+  } else { improvedBox.style.display = 'none'; }
 
-  // Scroll to results
-  setTimeout(() => resultsEl.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+  setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
 }
 
-function starsFor(pct) {
-  const filled = Math.round(pct / 20);
-  return '⭐'.repeat(filled) + '☆'.repeat(5 - filled);
-}
-
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════
    HISTORY
-────────────────────────────────────────────── */
+═══════════════════════════════════════════════════ */
 const history = [];
-
-function addToHistory(prompt, result) {
-  const entry = {
-    prompt: prompt.length > 80 ? prompt.slice(0,80)+'…' : prompt,
-    full: prompt,
-    score: result.total,
-    level: result.level,
-    time: new Date().toLocaleTimeString('es-CR', { hour:'2-digit', minute:'2-digit' })
-  };
-  history.unshift(entry);
+function addHistory(prompt, r) {
+  history.unshift({ full: prompt, prompt: prompt.length > 80 ? prompt.slice(0,80)+'…' : prompt,
+    score: r.total, level: r.level, time: new Date().toLocaleTimeString('es-CR',{hour:'2-digit',minute:'2-digit'}) });
   if (history.length > 8) history.pop();
   renderHistory();
 }
-
 function renderHistory() {
   const list = document.getElementById('historyList');
-  if (history.length === 0) {
-    list.innerHTML = '<div class="empty-history">Aún no has analizado ningún prompt. ¡Escribe uno arriba!</div>';
-    return;
-  }
+  if (!history.length) { list.innerHTML = '<div class="empty-history">Aún no has analizado ningún prompt. ¡Escribe uno arriba!</div>'; return; }
   list.innerHTML = '';
-  history.forEach((h, i) => {
-    const scoreColor = h.score >= 85 ? '#16a34a' : h.score >= 70 ? '#2563eb' : h.score >= 50 ? '#d97706' : h.score >= 30 ? '#f97316' : '#dc2626';
+  history.forEach(h => {
+    const col = h.score >= 85 ? '#16a34a' : h.score >= 68 ? '#2563eb' : h.score >= 48 ? '#d97706' : h.score >= 28 ? '#f97316' : '#dc2626';
     const d = document.createElement('div');
     d.className = 'history-item';
-    d.innerHTML = `
-      <div class="history-meta">
-        <span class="history-score" style="color:${scoreColor}">${h.score}/100 · ${h.level}</span>
-        <span class="history-time">${h.time}</span>
-      </div>
-      <div class="history-prompt">${h.prompt}</div>
-    `;
-    d.addEventListener('click', () => {
-      document.getElementById('promptInput').value = h.full;
-      updateCharCounter();
-      document.getElementById('promptInput').scrollIntoView({ behavior:'smooth' });
-    });
+    d.innerHTML = `<div class="history-meta"><span class="history-score" style="color:${col}">${h.score}/100 · ${h.level}</span><span class="history-time">${h.time}</span></div><div class="history-prompt">${h.prompt}</div>`;
+    d.addEventListener('click', () => { document.getElementById('promptInput').value = h.full; updateCC(); document.getElementById('promptInput').scrollIntoView({behavior:'smooth'}); });
     list.appendChild(d);
   });
 }
 
-/* ──────────────────────────────────────────────
-   EVENT LISTENERS
-────────────────────────────────────────────── */
-function updateCharCounter() {
-  const len     = document.getElementById('promptInput').value.length;
-  const counter = document.getElementById('charCounter');
-  counter.textContent = `${len} / 600 caracteres`;
-  counter.className   = 'char-counter' + (len > 500 ? ' warn' : '') + (len > 580 ? ' limit' : '');
+/* ═══════════════════════════════════════════════════
+   EVENTS
+═══════════════════════════════════════════════════ */
+function updateCC() {
+  const len = document.getElementById('promptInput').value.length;
+  const c   = document.getElementById('charCounter');
+  c.textContent = `${len} / 600 caracteres`;
+  c.className = 'char-counter' + (len > 480 ? ' warn' : '') + (len > 560 ? ' limit' : '');
 }
+document.getElementById('promptInput').addEventListener('input', updateCC);
 
-document.getElementById('promptInput').addEventListener('input', updateCharCounter);
-
-// ANALYZE
 document.getElementById('btnAnalyze').addEventListener('click', () => {
   const text = document.getElementById('promptInput').value.trim();
-  if (!text) {
-    alert('Por favor escribe un prompt antes de analizar.');
-    return;
-  }
-  const result = analyzePrompt(text);
-  renderResults(result);
-  addToHistory(text, result);
+  if (!text) { alert('Por favor escribe un prompt antes de analizar.'); return; }
+  const r = analyze(text);
+  renderResults(r);
+  addHistory(text, r);
 });
 
-// EXAMPLES TOGGLE
-document.getElementById('btnExample').addEventListener('click', () => {
-  document.getElementById('examplesPanel').classList.toggle('show');
-});
+document.getElementById('btnExample').addEventListener('click', () =>
+  document.getElementById('examplesPanel').classList.toggle('show'));
 
-// LOAD EXAMPLE ON CLICK
-document.querySelectorAll('.example-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.getElementById('promptInput').value = item.dataset.prompt;
-    updateCharCounter();
-    document.getElementById('examplesPanel').classList.remove('show');
-    document.getElementById('promptInput').focus();
-  });
-});
-
-// CLEAR
 document.getElementById('btnClear').addEventListener('click', () => {
   document.getElementById('promptInput').value = '';
-  updateCharCounter();
+  updateCC();
   document.getElementById('results').style.display = 'none';
   document.getElementById('examplesPanel').classList.remove('show');
 });
 
-// USE IMPROVED PROMPT
 document.getElementById('btnUseImproved').addEventListener('click', () => {
-  const improved = document.getElementById('improvedText').textContent;
-  document.getElementById('promptInput').value = improved;
-  updateCharCounter();
+  document.getElementById('promptInput').value = document.getElementById('improvedText').textContent;
+  updateCC();
   document.getElementById('promptInput').scrollIntoView({ behavior:'smooth' });
+});
+
+// Example tabs
+document.querySelectorAll('.ex-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ex-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cat = tab.dataset.cat;
+    document.querySelectorAll('.example-item').forEach(item =>
+      item.classList.toggle('active-cat', item.dataset.cat === cat));
+  });
+});
+
+// Load example on click
+document.querySelectorAll('.example-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.getElementById('promptInput').value = item.dataset.prompt;
+    updateCC();
+    document.getElementById('examplesPanel').classList.remove('show');
+    document.getElementById('promptInput').focus();
+  });
 });
 </script>
 </body>
