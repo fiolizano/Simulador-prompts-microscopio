@@ -287,9 +287,13 @@
     </div>
 
     <div class="improved-box" id="improvedBox" style="display:none;">
-      <h3>✨ Sugerencia de prompt mejorado</h3>
+      <h3>✨ Prompt mejorado — listo para usar</h3>
+      <p style="font-size:.82rem;color:#166534;margin-bottom:10px;">Está prácticamente listo. Puedes editarlo con tus datos reales y enviarlo directamente al asistente.</p>
       <div class="improved-text" id="improvedText"></div>
-      <button class="btn-use-improved" id="btnUseImproved">📋 Usar este prompt</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn-use-improved" id="btnUseImproved">📋 Cargar en el área de texto</button>
+        <button class="btn-use-improved" id="btnCopyImproved" style="background:#0d9488;">📄 Copiar al portapapeles</button>
+      </div>
     </div>
   </div>
 
@@ -540,14 +544,92 @@ function analyze(text) {
   // Completeness
   if (sentences.length >= 2) fb.push({ type:'positive', icon:'✅', text:'El prompt tiene varias oraciones, lo que proporciona suficiente contexto al asistente.' });
 
-  /* IMPROVED PROMPT TEMPLATE */
+  /* ── IMPROVED PROMPT — smart, ready-to-use generation ── */
   let improved = null;
   if (total < 80) {
-    const topicName = TOPICS[topic].label.replace(/^.+? /, '');
-    const ctxPart   = hasLabRef    ? '' : 'Estoy en el laboratorio remoto de microscopía. ';
-    const knownPart = showsKnown   ? '' : 'Sé que [indica lo que ya comprendes sobre el tema], pero ';
-    const qPart     = hasQ         ? '' : ' ¿[Formula aquí tu pregunta concreta]?';
-    improved = `${ctxPart}${knownPart}[Describe tu situación o duda relacionada con: ${topicName}]${qPart}`;
+
+    // Extract the core of what the student wrote (strip punctuation noise)
+    const core = text.trim().replace(/^[\s¿?!¡]+|[\s¿?!¡]+$/g, '');
+
+    // Detect if specific sample/objective already mentioned
+    const sampleMatch = t.match(/\b(cebolla|elodea|epitelial bucal|epitelial|sanguínea|cucaracha|espermatozoide|glóbulos? rojos?|glóbulos?)\b/);
+    const lensMatch   = t.match(/\b(4x|10x|40x|100x)\b/);
+    const sectionMatch= t.match(/\b(configuración|preparación|observación)\b/);
+
+    const sample  = sampleMatch ? sampleMatch[0] : null;
+    const lens    = lensMatch   ? lensMatch[0]   : null;
+    const section = sectionMatch? sectionMatch[0]: null;
+
+    // Build each missing block with sensible defaults
+    const labCtx  = hasLabRef    ? 'el laboratorio remoto de microscopía'
+                                 : 'el laboratorio remoto de microscopía';
+    const secCtx  = section      ? `la sección de ${section} de ${labCtx}`
+                                 : labCtx;
+
+    // Topic-specific improved prompts
+    if (topic === 'concepto') {
+      // For conceptual questions: context + what they know + specific question
+      const knownBlock = showsKnown
+        ? ''
+        : 'He leído la introducción del laboratorio, pero aún no tengo claro el concepto. ';
+      const qBlock = hasQ
+        ? core.replace(/.*?\?/, '').trim() || core
+        : core;
+      improved =
+        `Estoy estudiando en ${labCtx}. ${knownBlock}` +
+        `${showsKnown ? core : qBlock} ` +
+        `¿Puedes explicarme esto con un ejemplo concreto relacionado con las muestras del laboratorio?`;
+
+    } else if (topic === 'equipo') {
+      const partMatch = t.match(/\b(tornillo macrométrico|tornillo micrométrico|macrométrico|micrométrico|platina|condensador|revólver|ocular|objetivos?|fuente de luz|brazo|cabeza|pinzas|carro|diafragma)\b/);
+      const part = partMatch ? partMatch[0] : 'el componente';
+      const knownBlock = showsKnown
+        ? ''
+        : `Sé que ${part} forma parte del microscopio, pero no entiendo bien su función. `;
+      improved =
+        `Estoy en ${secCtx} y estoy revisando las partes del microscopio. ` +
+        `${knownBlock}` +
+        `${hasQ ? core : `Mi duda es sobre ${part}.`} ` +
+        `¿Puedes explicarme cómo se usa correctamente y qué ocurre si no se ajusta bien?`;
+
+    } else if (topic === 'montaje') {
+      const sampleCtx = sample ? `la muestra de ${sample}` : 'la muestra seleccionada';
+      const stepMatch = t.match(/\b(corte|lugol|eosina|portaobjetos|cubreobjetos|colorante|fijación|extensión|frotis|agua)\b/);
+      const step = stepMatch ? stepMatch[0] : null;
+      const knownBlock = showsKnown
+        ? ''
+        : `Ya realicé los primeros pasos de la preparación, pero tengo una duda en el proceso. `;
+      const stepCtx = step
+        ? `Llegué al paso de agregar ${step} y no entiendo para qué sirve en este caso.`
+        : `Tengo dudas sobre el orden correcto de los pasos.`;
+      improved =
+        `Estoy en la sección de preparación de ${labCtx} trabajando con ${sampleCtx}. ` +
+        `${knownBlock}${stepCtx} ` +
+        `¿Puedes explicarme qué función cumple ese paso y qué pasaría si lo omito?`;
+
+    } else if (topic === 'observacion') {
+      const sampleCtx = sample ? `la muestra de ${sample}` : 'la muestra seleccionada';
+      const lensCtx   = lens   ? `el objetivo ${lens}`     : 'uno de los objetivos';
+      const problemMatch = t.match(/\b(borroso|oscuro|no veo|no se ve|desenfocado|imagen mala|sin imagen|sin luz)\b/);
+      const problem = problemMatch ? problemMatch[0] : 'la imagen no se ve con claridad';
+      const knownBlock = showsKnown
+        ? ''
+        : `Seguí el procedimiento recomendado de comenzar con 4x y avanzar progresivamente, pero encontré un problema. `;
+      improved =
+        `Estoy en la sección de observación de ${labCtx} con ${sampleCtx}. ` +
+        `${knownBlock}` +
+        `Al usar ${lensCtx}, noto que ${problem}. Ya intenté ajustar el tornillo micrométrico y el nivel de iluminación. ` +
+        `¿Qué otros ajustes debo revisar para obtener una imagen nítida?`;
+
+    } else {
+      // General fallback — still more specific than before
+      const knownBlock = showsKnown ? '' : 'He revisado la sección de introducción del laboratorio, pero me quedó una duda. ';
+      improved =
+        `Estoy en ${labCtx}. ` +
+        `${knownBlock}` +
+        `${core}` +
+        `${hasQ ? '' : ' ¿Puedes explicarme esto con detalle?'}`;
+    }
   }
 
   return { total, clarity, context, spec, prior, complete,
@@ -694,6 +776,17 @@ document.getElementById('btnUseImproved').addEventListener('click', () => {
   document.getElementById('promptInput').value = document.getElementById('improvedText').textContent;
   updateCC();
   document.getElementById('promptInput').scrollIntoView({ behavior:'smooth' });
+});
+
+document.getElementById('btnCopyImproved').addEventListener('click', () => {
+  const text = document.getElementById('improvedText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btnCopyImproved');
+    const original = btn.textContent;
+    btn.textContent = '✅ ¡Copiado!';
+    btn.style.background = '#16a34a';
+    setTimeout(() => { btn.textContent = original; btn.style.background = '#0d9488'; }, 2000);
+  });
 });
 
 // Example tabs
